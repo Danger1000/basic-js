@@ -1,29 +1,43 @@
 module.exports = function transform(arr) {
-  if (!Array.isArray(arr)) throw new Error('Error');
-  let result = [];
-  for (let i = 0; i < arr.length; i++) {
-    switch (arr[i]) {
-      case '--discard-next':
-        i++;
-        break;
-      case '--discard-prev':
-        if (result.length !== 0) {
-          result.pop();
-        }
-        break;
+  if (!(arr instanceof Array)) throw 'an error';
+  let double = false;
+  arr = arr.reduce((changed, e) => {
+    switch (e) {
       case '--double-next':
-        (i < arr.length - 1) {
-        result.push(arr[i + 1]);
-        }
+        double = true;
         break;
       case '--double-prev':
-        if (i >= 1) {
-          result.push(arr[i - 1]);
-        }
+        if (changed.length > 0) changed.push(changed[changed.length - 1]);
         break;
-        default:
-          result.push(arr[i]);
+      default:
+        if (double) {
+          changed.push(e);
+          double = false;
         }
-  }
-  return result;
+        changed.push(e);
+        break;
+    }
+      return changed;
+  }, []);
+
+  let block = false;
+  arr = arr.reduce((changed, e) => {
+    switch (e) {
+      case '--discard-next':
+        block = true;
+        break;
+      case '--discard-prev':
+        changed.pop();
+        break;
+      default:
+        if (block) {
+        block = false;
+      } else {
+        changed.push(e);
+      }
+      break;
+      }
+      return changed;
+  }, []);
+  return arr;
 };
